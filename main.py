@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 
 from delivery_system import (
     load_data,
@@ -28,8 +29,19 @@ def main():
     print(json.dumps(report, indent=2))
 
     if args.ascii:
+        map_text = ascii_visualize(data["warehouses"], data["agents"])
         print()
-        print(ascii_visualize(data["warehouses"], data["agents"]))
+        print(map_text)
+
+        # put the map file in the same folder as the report, just with
+        # a different name — safer than string-replacing "report"
+        folder = os.path.dirname(args.out) or "."
+        base_name = os.path.basename(args.out).replace(".json", "")
+        map_path = os.path.join(folder, f"{base_name}_route_map.txt")
+
+        with open(map_path, "w") as f:
+            f.write(map_text)
+        print(f"\nRoute map saved to {map_path}")
 
     if args.csv:
         export_top_performer_csv(report, args.csv)
